@@ -1,19 +1,14 @@
 # UPnP
 
-**TODO: Add description**
-
-## Installation
-
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `upnp` to your list of dependencies in `mix.exs`:
+**Simple UPnP client library**
 
 ```elixir
-def deps do
-  [{:upnp, "~> 0.1.0"}]
-end
+iex(1)> device = UPnP.InternetGatewayDevice.discover()
+"http://192.168.0.1:1900/ipc"
+iex(2)> UPnP.InternetGatewayDevice.add_port_mapping(device, 1234)
+:ok
+iex(3)> UPnP.InternetGatewayDevice.delete_port_mapping(device, 1234)
+:ok
+iex(4)> UPnP.InternetGatewayDevice.get_external_ip_address(device)
+"123.456.789.00"
 ```
-
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/upnp](https://hexdocs.pm/upnp).
-
