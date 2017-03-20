@@ -1,4 +1,5 @@
 defmodule UPnP.Discovery do
+  @spec discover(String.t) :: Enumerable.t
   def discover(search_target) do
     discovery_packet = ~s"""
     M-SEARCH * HTTP/1.1\r
@@ -24,6 +25,7 @@ defmodule UPnP.Discovery do
   end
 
   @timeout 4000
+
   defp listen_discovery_responses(socket) do
     case :gen_udp.recv(socket, 1024, @timeout) do
       {:ok, {_, _, packet}} -> {packet, socket}
@@ -31,6 +33,7 @@ defmodule UPnP.Discovery do
     end
   end
 
+  @spec parse_discovery_response(String.t) :: [String.t]
   defp parse_discovery_response(packet) do
     packet
     |> String.split("\r\n")

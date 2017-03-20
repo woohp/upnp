@@ -1,5 +1,7 @@
 defmodule UPnP.InternetGatewayDevice do
   @search_target "urn:schemas-upnp-org:device:InternetGatewayDevice:1"
+
+  @spec discover() :: String.t | nil
   def discover do
     locations = UPnP.Discovery.discover(@search_target)
 
@@ -10,26 +12,31 @@ defmodule UPnP.InternetGatewayDevice do
     |> Enum.at(0)
   end
 
+  @spec add_port_mapping(String.t, String.t, integer, integer, :TCP | :UDP) :: :ok | :error
   def add_port_mapping(url, internal_client, internal_port, external_port, protocol) do
     response = make_soap_request(url, "AddPortMapping", internal_client, internal_port, external_port, protocol)
     if response.status_code == 200, do: :ok, else: :error
   end
 
-  def add_port_mapping(url, port, protocol \\ :TCP) do
+  @spec add_port_mapping(String.t, integer, :TCP | :UDP) :: :ok | :error
+  def add_port_mapping(url, port, protocol \\ :TCP) when url != nil do
     internal_client = get_ipv4_address()
     add_port_mapping(url, internal_client, port, port, protocol)
   end
 
-  def delete_port_mapping(url, external_port, protocol \\ :TCP) do
+  @spec delete_port_mapping(String.t, integer, :TCP | :UDP) :: :ok | :error
+  def delete_port_mapping(url, external_port, protocol \\ :TCP) when url != nil do
     response = make_soap_request(url, "DeletePortMapping", external_port, protocol)
     if response.status_code == 200, do: :ok, else: :error
   end
 
-  def get_external_ip_address(url) do
+  @spec get_external_ip_address(String.t) :: String.t | nil
+  def get_external_ip_address(url) when url != nil do
     response = make_soap_request(url, "GetExternalIPAddress")
-    parse_soap_response(response.body, "NewExternalIPAddress")
+    if response.status_code == 200, do: parse_soap_response(response.body, "NewExternalIPAddress"), else: nil
   end
 
+  @spec get_ipv4_address() :: String.t | nil
   def get_ipv4_address do
     {:ok, addresses} = :inet.getifaddrs()
 
@@ -41,6 +48,7 @@ defmodule UPnP.InternetGatewayDevice do
     |> Enum.at(0)
   end
 
+  @spec find_services(String.t) :: String.t | nil
   defp find_services(url) do
     http_response = HTTPoison.get!(url)
 
@@ -78,6 +86,7 @@ defmodule UPnP.InternetGatewayDevice do
     end
   end
 
+  @spec parse_soap_response(String.t, String.t) :: String.t
   defp parse_soap_response(content, element_name) do
     element_name = to_charlist(element_name)
 
