@@ -14,7 +14,17 @@ defmodule UPnP.InternetGatewayDevice do
 
   @spec add_port_mapping(String.t, String.t, integer, integer, :TCP | :UDP) :: :ok | :error
   def add_port_mapping(url, internal_client, internal_port, external_port, protocol) do
-    response = make_soap_request(url, "AddPortMapping", internal_client, internal_port, external_port, protocol)
+    body_frag = ~s"""
+    <NewRemoteHost></NewRemoteHost>
+    <NewExternalPort>#{external_port}</NewExternalPort>
+    <NewProtocol>#{protocol}</NewProtocol>
+    <NewInternalPort>#{internal_port}</NewInternalPort>
+    <NewInternalClient>#{internal_client}</NewInternalClient>
+    <NewEnabled>1</NewEnabled>
+    <NewPortMappingDescription>Insert description here</NewPortMappingDescription>
+    <NewLeaseDuration>0</NewLeaseDuration>
+    """
+    response = create_soap_request_helper(url, "AddPortMapping", body_frag)
     if response.status_code == 200, do: :ok, else: :error
   end
 
@@ -26,13 +36,18 @@ defmodule UPnP.InternetGatewayDevice do
 
   @spec delete_port_mapping(String.t, integer, :TCP | :UDP) :: :ok | :error
   def delete_port_mapping(url, external_port, protocol \\ :TCP) when url != nil do
-    response = make_soap_request(url, "DeletePortMapping", external_port, protocol)
+    body_frag = ~s"""
+    <NewRemoteHost></NewRemoteHost>
+    <NewExternalPort>#{external_port}</NewExternalPort>
+    <NewProtocol>#{protocol}</NewProtocol>
+    """
+    response = create_soap_request_helper(url, "DeletePortMapping", body_frag)
     if response.status_code == 200, do: :ok, else: :error
   end
 
   @spec get_external_ip_address(String.t) :: String.t | nil
   def get_external_ip_address(url) when url != nil do
-    response = make_soap_request(url, "GetExternalIPAddress")
+    response = create_soap_request_helper(url, "GetExternalIPAddress")
     if response.status_code == 200, do: parse_soap_response(response.body, "NewExternalIPAddress"), else: nil
   end
 
@@ -105,33 +120,6 @@ defmodule UPnP.InternetGatewayDevice do
     text
   end
 
-  defp make_soap_request(url, "AddPortMapping" = method_name, internal_client, internal_port, external_port, protocol) do
-    body_frag = ~s"""
-    <NewRemoteHost></NewRemoteHost>
-    <NewExternalPort>#{external_port}</NewExternalPort>
-    <NewProtocol>#{protocol}</NewProtocol>
-    <NewInternalPort>#{internal_port}</NewInternalPort>
-    <NewInternalClient>#{internal_client}</NewInternalClient>
-    <NewEnabled>1</NewEnabled>
-    <NewPortMappingDescription>Insert description here</NewPortMappingDescription>
-    <NewLeaseDuration>0</NewLeaseDuration>
-    """
-    create_soap_request_helper(url, method_name, body_frag)
-  end
-
-  defp make_soap_request(url, "DeletePortMapping" = method_name, external_port, protocol) do
-    body_frag = ~s"""
-    <NewRemoteHost></NewRemoteHost>
-    <NewExternalPort>#{external_port}</NewExternalPort>
-    <NewProtocol>#{protocol}</NewProtocol>
-    """
-    create_soap_request_helper(url, method_name, body_frag)
-  end
-
-  defp make_soap_request(url, "GetExternalIPAddress" = method_name) do
-    create_soap_request_helper(url, method_name)
-  end
-
   defp create_soap_request_helper(url, method_name, body_fragment \\ "") do
     body = ~s"""
     <?xml version="1.0"?>
@@ -146,7 +134,7 @@ defmodule UPnP.InternetGatewayDevice do
     """
 
     headers = [
-      {"Content-Type", ~s(text/xml; charset=\"utf-8\")},
+      {"Content-Type", ~s(text/xml; charset="utf-8")},
       {"SOAPAction", ~s("urn:schemas-upnp-org:service:WANIPConnection:1##{method_name}")}
     ]
 
