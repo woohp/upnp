@@ -58,8 +58,8 @@ defmodule UPnP.InternetGatewayDevice do
     addresses
     |> Enum.filter(fn {ifname, _} -> ifname != 'lo0' end)  # filter out the loopback addresses
     |> Enum.flat_map(fn {_, if_opts} -> if_opts end)  # don't care about interfaces, just get everything
-    |> Enum.filter_map(fn {opt_name, value} -> opt_name == :addr and tuple_size(value) == 4 end,
-                       fn {_, value} -> to_string(:inet.ntoa(value)) end)
+    |> Enum.filter(fn {opt_name, value} -> opt_name == :addr and tuple_size(value) == 4 end)
+    |> Enum.map(fn {_, value} -> to_string(:inet.ntoa(value)) end)
     |> Enum.at(0)
   end
 

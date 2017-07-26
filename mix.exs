@@ -4,7 +4,7 @@ defmodule UPnP.Mixfile do
   def project do
     [app: :upnp,
      version: "0.1.0",
-     elixir: "~> 1.4",
+     elixir: "~> 1.5",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      deps: deps()]
@@ -28,7 +28,7 @@ defmodule UPnP.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    [{:httpoison, "~> 0.11.0"},
+    [{:httpoison, "~> 0.12.0"},
      {:dialyxir, "~> 0.5", only: [:dev], runtime: false}]
   end
 end

@@ -38,7 +38,7 @@ defmodule UPnP.Discovery do
     packet
     |> String.split("\r\n")
     |> Enum.map(&String.split(&1, ":", parts: 2))
-    |> Enum.filter_map(fn line_segments -> String.downcase(hd(line_segments)) == "location" end,
-                       fn [_, value] -> String.trim(value) end)
+    |> Enum.filter(fn [header | _] -> String.downcase(header) == "location" end)
+    |> Enum.map(fn [_, value] -> String.trim(value) end)
   end
 end
