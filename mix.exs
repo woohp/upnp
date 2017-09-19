@@ -28,7 +28,7 @@ defmodule UPnP.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    [{:httpoison, "~> 0.12.0"},
+    [{:httpoison, "~> 0.13.0"},
      {:dialyxir, "~> 0.5", only: [:dev], runtime: false}]
   end
 end
