@@ -2,12 +2,14 @@ defmodule UPnP.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :upnp,
-     version: "0.1.0",
-     elixir: "~> 1.5",
-     build_embedded: Mix.env == :prod,
-     start_permanent: Mix.env == :prod,
-     deps: deps()]
+    [
+      app: :upnp,
+      version: "0.1.0",
+      elixir: "~> 1.5",
+      build_embedded: Mix.env() == :prod,
+      start_permanent: Mix.env() == :prod,
+      deps: deps()
+    ]
   end
 
   # Configuration for the OTP application
@@ -28,7 +30,6 @@ defmodule UPnP.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    [{:httpoison, "~> 0.13.0"},
-     {:dialyxir, "~> 0.5", only: [:dev], runtime: false}]
+    [{:httpoison, "~> 0.13.0"}, {:dialyxir, "~> 0.5", only: [:dev], runtime: false}]
   end
 end

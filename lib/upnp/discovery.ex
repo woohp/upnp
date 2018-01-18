@@ -1,5 +1,5 @@
 defmodule UPnP.Discovery do
-  @spec discover(String.t) :: Enumerable.t
+  @spec discover(String.t()) :: Enumerable.t()
   def discover(search_target) do
     discovery_packet = ~s"""
     M-SEARCH * HTTP/1.1\r
@@ -17,9 +17,10 @@ defmodule UPnP.Discovery do
     discovery_responses = Stream.unfold(socket, &listen_discovery_responses/1)
 
     # parse each response packet for locations
-    locations = discovery_responses
-    |> Stream.flat_map(&parse_discovery_response/1)
-    |> Stream.uniq()
+    locations =
+      discovery_responses
+      |> Stream.flat_map(&parse_discovery_response/1)
+      |> Stream.uniq()
 
     locations
   end
@@ -33,7 +34,7 @@ defmodule UPnP.Discovery do
     end
   end
 
-  @spec parse_discovery_response(String.t) :: [String.t]
+  @spec parse_discovery_response(String.t()) :: [String.t()]
   defp parse_discovery_response(packet) do
     packet
     |> String.split("\r\n")
